@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dress Tailors and Fabrics — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b08;--bg2:#131009;--bg3:#1a1510;--card:#1e1812;--card2:#252015;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#f5dfa0;--cream:#f0e6d0;--text:#e8dcc8;--muted:#7a6e5e;--border:#2e2618;--border2:#3d3222;--red:#c0392b;--green:#27ae60;--blue:#2980b9;--radius:4px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--bg2);border-right:1px solid var(--border2);display:flex;flex-direction:column;z-index:100;}
+.logo{padding:20px 22px 16px;border-bottom:1px solid var(--border2);}
+.logo-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--gold2);letter-spacing:1px;line-height:1.3;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;font-family:'DM Mono',monospace;}
+.logo-contact{margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8;}
+.logo-contact span{color:var(--gold);display:block;}
+.logo-addr{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.nav{padding:12px 0;flex:1;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 22px;cursor:pointer;color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:all .2s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--cream);background:var(--bg3);}
+.nav-item.active{color:var(--gold2);border-left-color:var(--gold);background:rgba(201,168,76,.07);}
+.nav-icon{font-size:14px;width:18px;text-align:center;}
+.sidebar-footer{padding:14px 22px;border-top:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.stat-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.stat-val{color:var(--gold);}
+.main{margin-left:250px;min-height:100vh;padding:0 0 40px;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border2);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--cream);font-weight:600;}
+.page-title span{color:var(--gold);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border:1px solid var(--border2);background:var(--card);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:var(--radius);transition:all .2s;}
+.btn:hover{background:var(--card2);border-color:var(--muted);}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:500;}
+.btn-gold:hover{background:var(--gold2);border-color:var(--gold2);}
+.btn-sm{padding:5px 12px;font-size:10px;}
+.btn-danger{border-color:var(--red);color:var(--red);}
+.btn-danger:hover{background:rgba(192,57,43,.1);}
+.btn-success{border-color:var(--green);color:var(--green);}
+.btn-success:hover{background:rgba(39,174,96,.1);}
+.btn-blue{border-color:var(--blue);color:#5dade2;}
+.btn-blue:hover{background:rgba(41,128,185,.1);}
+.page{display:none;padding:28px 32px;}
+.page.active{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;}
+.stat-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.stat-number{font-family:'Playfair Display',serif;font-size:30px;color:var(--gold2);font-weight:700;}
+.stat-change{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);margin-top:4px;}
+.table-wrap{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;}
+.table-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.table-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--cream);}
+.search-box{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 12px;font-family:'DM Mono',monospace;font-size:11px;border-radius:var(--radius);width:200px;outline:none;}
+.search-box:focus{border-color:var(--gold);}
+.search-box::placeholder{color:var(--muted);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg3);}
+th{padding:10px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border2);}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .15s;}
+tbody tr:hover{background:var(--bg3);}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.badge-green{background:rgba(39,174,96,.15);color:var(--green);border:1px solid rgba(39,174,96,.3);}
+.badge-gold{background:rgba(201,168,76,.15);color:var(--gold2);border:1px solid rgba(201,168,76,.3);}
+.badge-blue{background:rgba(41,128,185,.15);color:#5dade2;border:1px solid rgba(41,128,185,.3);}
+.badge-red{background:rgba(192,57,43,.15);color:#e74c3c;border:1px solid rgba(192,57,43,.3);}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:var(--bg);margin-right:9px;flex-shrink:0;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:999;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);width:760px;max-height:92vh;overflow-y:auto;animation:modalIn .2s ease;}
+.modal-wide{width:900px;}
+@keyframes modalIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:2;}
+.modal-head-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--cream);}
+.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;transition:color .2s;}
+.modal-close:hover{color:var(--cream);}
+.modal-body{padding:22px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:10px;}
+.form-section{margin-bottom:22px;}
+.form-section-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border2);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.form-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 11px;font-family:'Cormorant Garamond',serif;font-size:15px;border-radius:var(--radius);outline:none;transition:border-color .2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+input::placeholder{color:var(--muted);}
+select option{background:var(--bg2);}
+textarea{resize:vertical;min-height:60px;}
+.meas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.meas-item{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 12px;text-align:center;}
+.meas-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.meas-val{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold2);}
+.meas-unit{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-left:1px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.detail-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:16px;}
+.detail-card-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-key{color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;}
+.detail-val{color:var(--cream);}
+.empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.4;}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--gold);padding:12px 18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);z-index:9999;border-radius:var(--radius);animation:toastIn .3s ease;max-width:280px;}
+@keyframes toastIn{from{transform:translateX(100px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.pagination{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+.page-btn{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:4px 10px;cursor:pointer;border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:10px;}
+.page-btn:hover{border-color:var(--gold);color:var(--gold);}
+.page-btn.active{background:var(--gold);border-color:var(--gold);color:var(--bg);}
+/* Measurement inline edit */
+.meas-edit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.meas-edit-item{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:10px;}
+.meas-edit-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.meas-edit-input{background:var(--bg);border:1px solid var(--border);color:var(--cream);padding:5px 8px;font-family:'Playfair Display',serif;font-size:16px;border-radius:var(--radius);width:100%;outline:none;text-align:center;}
+.meas-edit-input:focus{border-color:var(--gold);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+@media print{.sidebar,.topbar,.btn,.modal-overlay,nav{display:none!important;}.main{margin-left:0;}.page{display:block!important;padding:0;}}
+.highlight-row{background:rgba(201,168,76,.05)!important;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-title">Dress Tailors<br>and Fabrics</div>
+    <div class="logo-sub">Management System</div>
+    <div class="logo-contact">
+      <span>Muhammad Sohail</span>0311-9467640
+      <span style="margin-top:4px;">Muhammad Tufail</span>0318-9070547
+    </div>
+    <div class="logo-addr">Malak Plaza Main Patak<br>Gujar Garhi, Mardan<br>KPK, Pakistan</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◈</span>Dashboard</div>
+    <div class="nav-item" onclick="showPage('customers',this)"><span class="nav-icon">◉</span>Customers</div>
+    <div class="nav-item" onclick="showPage('measurements',this)"><span class="nav-icon">◎</span>Measurements</div>
+    <div class="nav-item" onclick="showPage('orders',this)"><span class="nav-icon">◐</span>Orders</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="stat-row"><span>Customers</span><span class="stat-val" id="sb-cust">0</span></div>
+    <div class="stat-row"><span>Active Orders</span><span class="stat-val" id="sb-orders">0</span></div>
+    <div class="stat-row"><span>Ready</span><span class="stat-val" id="sb-ready">0</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard <span>— Overview</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-gold" id="topbar-action" onclick="openAddCustomer()">+ New Customer</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Customers</div><div class="stat-number" id="d-cust">0</div><div class="stat-change">↑ All time</div></div>
+      <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-number" id="d-orders">0</div><div class="stat-change">↑ All time</div></div>
+      <div class="stat-card"><div class="stat-label">Pending / In Progress</div><div class="stat-number" id="d-pending">0</div><div class="stat-change" style="color:var(--gold)">In progress</div></div>
+      <div class="stat-card"><div class="stat-label">Ready / Delivered</div><div class="stat-number" id="d-ready">0</div><div class="stat-change">Completed</div></div>
+    </div>
+    <div class="two-col">
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Recent Customers</div></div>
+        <table><thead><tr><th>Name</th><th>Phone</th><th>Orders</th></tr></thead><tbody id="dash-customers"></tbody></table>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">Recent Orders</div></div>
+        <table><thead><tr><th>Customer</th><th>Item</th><th>Status</th></tr></thead><tbody id="dash-orders"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="page" id="page-customers">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">Customer Records</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="search-box" placeholder="Search name / phone…" oninput="filterCustomers(this.value)" id="cust-search">
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>City</th><th>Orders</th><th>Actions</th></tr></thead>
+        <tbody id="customers-table"></tbody>
+      </table>
+      <div class="pagination" id="cust-pagination"></div>
+    </div>
+  </div>
+
+  <!-- MEASUREMENTS -->
+  <div class="page" id="page-measurements">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">Measurement Cards</div>
+        <input class="search-box" placeholder="Search customer…" oninput="filterMeasurements(this.value)" id="meas-search">
+      </div>
+      <table>
+        <thead><tr><th>Customer</th><th>Chest</th><th>Waist</th><th>Shoulder</th><th>Sleeve</th><th>Neck</th><th>Shalwar</th><th>Pancha</th><th>Kurta</th><th>Actions</th></tr></thead>
+        <tbody id="measurements-table"></tbody>
+      </table>
+      <div class="pagination" id="meas-pagination"></div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="page" id="page-orders">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">Order Management</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="search-box" placeholder="Search orders…" oninput="filterOrders(this.value)" style="width:170px;">
+          <button class="btn btn-sm btn-gold" onclick="openAddOrder()">+ New Order</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Customer</th><th>Item</th><th>Fabric</th><th>Price</th><th>Advance</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="orders-table"></tbody>
+      </table>
+      <div class="pagination" id="orders-pagination"></div>
+    </div>
+  </div>
+</main>
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-title" id="cust-modal-title">New Customer</div>
+      <button class="modal-close" onclick="closeModal('modal-customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Personal Information</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="c-name" placeholder="e.g. Ahmed Khan"></div>
+          <div class="form-group"><label>Phone Number *</label><input type="text" id="c-phone" placeholder="e.g. 0312-3456789"></div>
+          <div class="form-group"><label>Father's / Husband's Name</label><input type="text" id="c-father"></div>
+          <div class="form-group"><label>City</label><input type="text" id="c-city" placeholder="e.g. Mardan"></div>
+          <div class="form-group full"><label>Address</label><textarea id="c-address" rows="2"></textarea></div>
+          <div class="form-group"><label>Email</label><input type="email" id="c-email"></div>
+          <div class="form-group"><label>CNIC (Optional)</label><input type="text" id="c-cnic"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Body Measurements — Upper Body (inches)</div>
+        <div class="form-grid form-grid-4">
+          <div class="form-group"><label>Chest (سینہ)</label><input type="number" id="m-chest" step="0.5"></div>
+          <div class="form-group"><label>Waist (کمر)</label><input type="number" id="m-waist" step="0.5"></div>
+          <div class="form-group"><label>Hip (کولہا)</label><input type="number" id="m-hip" step="0.5"></div>
+          <div class="form-group"><label>Shoulder (کندھا)</label><input type="number" id="m-shoulder" step="0.5"></div>
+          <div class="form-group"><label>Sleeve (آستین)</label><input type="number" id="m-sleeve" step="0.5"></div>
+          <div class="form-group"><label>Neck (گلا)</label><input type="number" id="m-neck" step="0.5"></div>
+          <div class="form-group"><label>Shirt Length</label><input type="number" id="m-shirt-len" step="0.5"></div>
+          <div class="form-group"><label>Kurta Length (کرتہ)</label><input type="number" id="m-kurta" step="0.5"></div>
+          <div class="form-group"><label>Sherwani Length</label><input type="number" id="m-sherwani" step="0.5"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Lower Body Measurements (inches)</div>
+        <div class="form-grid form-grid-4">
+          <div class="form-group"><label>Shalwar Length (شلوار)</label><input type="number" id="m-shalwar" step="0.5"></div>
+          <div class="form-group"><label>Pancha / Leg Opening (پانچہ)</label><input type="number" id="m-pancha" step="0.5"></div>
+          <div class="form-group"><label>Inseam (اندرونی ٹانگ)</label><input type="number" id="m-inseam" step="0.5"></div>
+          <div class="form-group"><label>Outseam (بیرونی ٹانگ)</label><input type="number" id="m-outseam" step="0.5"></div>
+          <div class="form-group"><label>Thigh (ران)</label><input type="number" id="m-thigh" step="0.5"></div>
+          <div class="form-group"><label>Knee (گھٹنا)</label><input type="number" id="m-knee" step="0.5"></div>
+          <div class="form-group"><label>Ankle (ٹخنہ)</label><input type="number" id="m-ankle" step="0.5"></div>
+          <div class="form-group"><label>Trouser Waist</label><input type="number" id="m-trwaist" step="0.5"></div>
+        </div>
+      </div>
+      <div class="form-group"><label>Measurement Notes</label><textarea id="m-notes" rows="2" placeholder="Special fitting notes, body posture, preferences…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-customer')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW / EDIT MEASUREMENT MODAL -->
+<div class="modal-overlay" id="modal-view">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-head-title" id="view-name">Customer Detail</div>
+      <button class="modal-close" onclick="closeModal('modal-view')">✕</button>
+    </div>
+    <div class="modal-body" id="view-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-view')">Close</button>
+      <button class="btn btn-success btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MEASUREMENT MODAL -->
+<div class="modal-overlay" id="modal-meas-edit">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <div class="modal-head-title" id="meas-edit-title">Edit Measurements</div>
+      <button class="modal-close" onclick="closeModal('modal-meas-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Upper Body (inches)</div>
+        <div class="meas-edit-grid">
+          <div class="meas-edit-item"><div class="meas-edit-label">Chest (سینہ)</div><input class="meas-edit-input" type="number" id="me-chest" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Waist (کمر)</div><input class="meas-edit-input" type="number" id="me-waist" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Hip (کولہا)</div><input class="meas-edit-input" type="number" id="me-hip" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Shoulder (کندھا)</div><input class="meas-edit-input" type="number" id="me-shoulder" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Sleeve (آستین)</div><input class="meas-edit-input" type="number" id="me-sleeve" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Neck (گلا)</div><input class="meas-edit-input" type="number" id="me-neck" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Shirt Length</div><input class="meas-edit-input" type="number" id="me-shirt-len" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Kurta Length</div><input class="meas-edit-input" type="number" id="me-kurta" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Sherwani Length</div><input class="meas-edit-input" type="number" id="me-sherwani" step="0.5"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Lower Body (inches)</div>
+        <div class="meas-edit-grid">
+          <div class="meas-edit-item"><div class="meas-edit-label">Shalwar Length (شلوار)</div><input class="meas-edit-input" type="number" id="me-shalwar" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Pancha / Leg Opening (پانچہ)</div><input class="meas-edit-input" type="number" id="me-pancha" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Inseam (اندرونی ٹانگ)</div><input class="meas-edit-input" type="number" id="me-inseam" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Outseam (بیرونی)</div><input class="meas-edit-input" type="number" id="me-outseam" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Thigh (ران)</div><input class="meas-edit-input" type="number" id="me-thigh" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Knee (گھٹنا)</div><input class="meas-edit-input" type="number" id="me-knee" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Ankle (ٹخنہ)</div><input class="meas-edit-input" type="number" id="me-ankle" step="0.5"></div>
+          <div class="meas-edit-item"><div class="meas-edit-label">Trouser Waist</div><input class="meas-edit-input" type="number" id="me-trwaist" step="0.5"></div>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="me-notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-meas-edit')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveMeasurements()">Save Measurements</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="modal-order">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-title" id="order-modal-title">New Order</div>
+      <button class="modal-close" onclick="closeModal('modal-order')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Order Details</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Customer *</label><select id="o-customer"><option value="">— Select —</option></select></div>
+          <div class="form-group"><label>Garment Type *</label>
+            <select id="o-item">
+              <option>Shalwar Kameez</option><option>Kurta</option><option>Sherwani</option><option>Waistcoat</option>
+              <option>Suit (2-piece)</option><option>Suit (3-piece)</option><option>Pants / Trouser</option>
+              <option>Shirt</option><option>Coat</option><option>Pant Coat</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Fabric Description</label><input type="text" id="o-fabric" placeholder="e.g. White Lawn, Navy Suiting"></div>
+          <div class="form-group"><label>Quantity</label><input type="number" id="o-qty" value="1" min="1"></div>
+          <div class="form-group"><label>Price (PKR)</label><input type="number" id="o-price"></div>
+          <div class="form-group"><label>Advance Paid (PKR)</label><input type="number" id="o-advance"></div>
+          <div class="form-group"><label>Due Date</label><input type="date" id="o-due"></div>
+          <div class="form-group"><label>Status</label>
+            <select id="o-status">
+              <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
+              <option value="Ready">Ready</option><option value="Delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="form-group full"><label>Special Instructions</label><textarea id="o-notes" placeholder="Collar style, buttons, embroidery, lining…"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-order')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======== DATA ========
+let DB = JSON.parse(localStorage.getItem('dtf_v2')||'null');
+let editingCustId = null, editingOrderId = null, editingMeasId = null;
+let custPage=1, measPage=1, orderPage=1;
+const PER = 20;
+let custFilter='', measFilter='', orderFilter='';
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+// ======== NAMES ======== (Pashto/Urdu male names)
+const FIRST=['Ahmed','Muhammad','Ali','Hassan','Hussain','Bilal','Usman','Imran','Tariq','Waseem','Sajid','Adnan','Asif','Kashif','Junaid','Waqas','Zubair','Hamid','Khalid','Faisal','Naveed','Rizwan','Shahid','Aamir','Babar','Daniyal','Farhan','Ghulam','Haroon','Ijaz','Jawad','Kamran','Luqman','Mansoor','Naeem','Omar','Pervez','Qasim','Raheel','Salman','Tahir','Umair','Yasin','Zahid','Arif','Bashir','Cyrus','Dilawar','Ehsan','Fawad','Ghazanfar','Huzaifa','Irfan','Jamal','Kabir','Latif','Mudassar','Nisar','Owais','Parvez','Rauf','Sarfraz','Tanveer','Ubaid','Vaqar','Wajid','Yasir','Zafar','Attique','Bilwas','Chaudhry','Danish','Ehtisham','Farrukh','Gulfam','Hamza','Iftikhar','Javed','Kamal','Liaqat','Mujahid','Nasir','Obaid','Pasha','Qurban','Ramzan','Shafiq','Touseef','Umar','Waris','Xulaikha','Yaqoob','Zeeshan','Amir','Baber','Changez','Danial','Ejaz','Fahad','Ghani','Habib','Inayat','Jawwad'];
+const LAST=['Khan','Shah','Malik','Afridi','Shinwari','Mohmand','Yousafzai','Bangash','Khattak','Orakzai','Safi','Jadoon','Tanoli','Swati','Marwat','Durrani','Kakar','Achakzai','Tareen','Bugti','Raza','Ahmed','Hassan','Hussain','Baig','Mirza','Qureshi','Ansari','Siddiqui','Farooqi','Gillani','Naqvi','Tirmizi','Bukhari','Chishti'];
+const CITIES=['Mardan','Peshawar','Swabi','Nowshera','Charsadda','Swat','Dir','Buner','Malakand','Haripur','Abbottabad','Mansehra','Karak','Kohat','Hangu','Bannu','Lakki Marwat','DI Khan','Tank','Mardan'];
+
+function randName(){ return FIRST[Math.floor(Math.random()*FIRST.length)]+' '+LAST[Math.floor(Math.random()*LAST.length)]; }
+function randPhone(){ const ops=['0311','0312','0313','0314','0315','0316','0317','0318','0319','0332','0333','0334','0335','0300','0301','0302','0303','0321','0322','0323','0324','0345','0346','0347','0348']; return ops[Math.floor(Math.random()*ops.length)]+'-'+Math.floor(1000000+Math.random()*9000000); }
+function randCity(){ return CITIES[Math.floor(Math.random()*CITIES.length)]; }
+function rnd(min,max,step=0.5){ return Math.round((min+Math.random()*(max-min))/step)*step; }
+function randMeas(){
+  return {
+    chest:rnd(36,46), waist:rnd(30,42), hip:rnd(34,44), shoulder:rnd(15,19), sleeve:rnd(22,27),
+    neck:rnd(14,17), shirtLen:rnd(28,33), kurta:rnd(38,46), sherwani:rnd(44,54),
+    shalwar:rnd(38,44), pancha:rnd(7,14), inseam:rnd(27,32), outseam:rnd(40,46),
+    thigh:rnd(20,26), knee:rnd(15,20), ankle:rnd(12,16), trwaist:rnd(30,42),
+    notes:''
+  };
+}
+
+function generateDemoData(){
+  const customers=[], orders=[];
+  const statuses=['Pending','In Progress','Ready','Delivered'];
+  const items=['Shalwar Kameez','Kurta','Sherwani','Suit (2-piece)','Pants / Trouser','Waistcoat','Pant Coat'];
+  const fabrics=['White Lawn','Navy Suiting','Beige Cotton','Charcoal Wool','Cream Silk','Black Brocade','Grey Linen','Brown Tweed','Sky Blue Lawn','Olive Cotton','Maroon Velvet','Off-White Khaddar'];
+  const now=Date.now();
+
+  for(let i=0;i<200;i++){
+    const id=uid();
+    const daysAgo=Math.floor(Math.random()*365);
+    customers.push({
+      id, serial:i+1,
+      name:randName(), phone:randPhone(), father:randName().split(' ')[0]+' '+LAST[Math.floor(Math.random()*LAST.length)],
+      city:randCity(), address:'', email:'', cnic:'',
+      createdAt:new Date(now-daysAgo*86400000).toISOString(),
+      measurements:randMeas()
+    });
+  }
+
+  // ~300 orders across 200 customers
+  for(let i=0;i<280;i++){
+    const cust=customers[Math.floor(Math.random()*200)];
+    const price=Math.round((1500+Math.random()*15000)/500)*500;
+    const advance=Math.round(price*(0.3+Math.random()*0.5)/100)*100;
+    const daysAgo=Math.floor(Math.random()*200);
+    const dueDays=daysAgo-Math.floor(Math.random()*30);
+    const status=statuses[Math.floor(Math.random()*4)];
+    orders.push({
+      id:uid(), customerId:cust.id,
+      item:items[Math.floor(Math.random()*items.length)],
+      fabric:fabrics[Math.floor(Math.random()*fabrics.length)],
+      qty:Math.ceil(Math.random()*3), price, advance,
+      due:new Date(now-dueDays*86400000).toISOString().split('T')[0],
+      status, notes:'',
+      createdAt:new Date(now-daysAgo*86400000).toISOString()
+    });
+  }
+
+  // Add owner entries at top
+  customers[0].name='Muhammad Sohail'; customers[0].phone='0311-9467640'; customers[0].city='Mardan';
+  customers[1].name='Muhammad Tufail'; customers[1].phone='0318-9070547'; customers[1].city='Mardan';
+
+  return {customers,orders};
+}
+
+if(!DB){
+  DB=generateDemoData();
+  localStorage.setItem('dtf_v2',JSON.stringify(DB));
+}
+
+function saveDB(){
+  localStorage.setItem('dtf_v2',JSON.stringify(DB));
+  updateSidebar(); updateDashboard();
+}
+
+// ======== NAV ========
+function showPage(page, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard <span>— Overview</span>',customers:'Customers <span>— All Records</span>',measurements:'Measurements <span>— Size Cards</span>',orders:'Orders <span>— Management</span>'};
+  document.getElementById('page-title').innerHTML=titles[page];
+  document.getElementById('topbar-action').textContent=page==='orders'?'+ New Order':'+ New Customer';
+  document.getElementById('topbar-action').onclick=page==='orders'?openAddOrder:openAddCustomer;
+  if(page==='customers'){custPage=1;renderCustomers();}
+  if(page==='measurements'){measPage=1;renderMeasurements();}
+  if(page==='orders'){measPage=1;populateOrderCustomers();renderOrders();}
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ======== CUSTOMERS ========
+function openAddCustomer(){
+  editingCustId=null;
+  document.getElementById('cust-modal-title').textContent='New Customer';
+  const ids=['c-name','c-phone','c-father','c-city','c-address','c-email','c-cnic','m-chest','m-waist','m-hip','m-shoulder','m-sleeve','m-neck','m-shirt-len','m-kurta','m-sherwani','m-shalwar','m-pancha','m-inseam','m-outseam','m-thigh','m-knee','m-ankle','m-trwaist','m-notes'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  openModal('modal-customer');
+}
+
+function saveCustomer(){
+  const name=document.getElementById('c-name').value.trim();
+  const phone=document.getElementById('c-phone').value.trim();
+  if(!name||!phone){toast('Name and phone required.');return;}
+  const meas={
+    chest:document.getElementById('m-chest').value, waist:document.getElementById('m-waist').value,
+    hip:document.getElementById('m-hip').value, shoulder:document.getElementById('m-shoulder').value,
+    sleeve:document.getElementById('m-sleeve').value, neck:document.getElementById('m-neck').value,
+    shirtLen:document.getElementById('m-shirt-len').value, kurta:document.getElementById('m-kurta').value,
+    sherwani:document.getElementById('m-sherwani').value, shalwar:document.getElementById('m-shalwar').value,
+    pancha:document.getElementById('m-pancha').value, inseam:document.getElementById('m-inseam').value,
+    outseam:document.getElementById('m-outseam').value, thigh:document.getElementById('m-thigh').value,
+    knee:document.getElementById('m-knee').value, ankle:document.getElementById('m-ankle').value,
+    trwaist:document.getElementById('m-trwaist').value, notes:document.getElementById('m-notes').value
+  };
+  if(editingCustId){
+    const idx=DB.customers.findIndex(c=>c.id===editingCustId);
+    DB.customers[idx]={...DB.customers[idx],name,phone,father:document.getElementById('c-father').value.trim(),city:document.getElementById('c-city').value.trim(),address:document.getElementById('c-address').value.trim(),email:document.getElementById('c-email').value.trim(),cnic:document.getElementById('c-cnic').value.trim(),measurements:meas};
+    toast('Customer updated.');
+  } else {
+    DB.customers.push({id:uid(),serial:DB.customers.length+1,name,phone,father:document.getElementById('c-father').value.trim(),city:document.getElementById('c-city').value.trim(),address:document.getElementById('c-address').value.trim(),email:document.getElementById('c-email').value.trim(),cnic:document.getElementById('c-cnic').value.trim(),createdAt:new Date().toISOString(),measurements:meas});
+    toast('Customer added.');
+  }
+  saveDB(); closeModal('modal-customer'); renderCustomers(); renderMeasurements();
+}
+
+function editCustomer(id){
+  const c=DB.customers.find(c=>c.id===id); if(!c)return;
+  editingCustId=id;
+  document.getElementById('cust-modal-title').textContent='Edit: '+c.name;
+  document.getElementById('c-name').value=c.name;
+  document.getElementById('c-phone').value=c.phone;
+  document.getElementById('c-father').value=c.father||'';
+  document.getElementById('c-city').value=c.city||'';
+  document.getElementById('c-address').value=c.address||'';
+  document.getElementById('c-email').value=c.email||'';
+  document.getElementById('c-cnic').value=c.cnic||'';
+  const m=c.measurements||{};
+  const mf={'m-chest':'chest','m-waist':'waist','m-hip':'hip','m-shoulder':'shoulder','m-sleeve':'sleeve','m-neck':'neck','m-shirt-len':'shirtLen','m-kurta':'kurta','m-sherwani':'sherwani','m-shalwar':'shalwar','m-pancha':'pancha','m-inseam':'inseam','m-outseam':'outseam','m-thigh':'thigh','m-knee':'knee','m-ankle':'ankle','m-trwaist':'trwaist','m-notes':'notes'};
+  Object.entries(mf).forEach(([elId,key])=>{const el=document.getElementById(elId);if(el)el.value=m[key]||'';});
+  openModal('modal-customer');
+}
+
+function deleteCustomer(id){
+  if(!confirm('Delete customer and all their orders?'))return;
+  DB.customers=DB.customers.filter(c=>c.id!==id);
+  DB.orders=DB.orders.filter(o=>o.customerId!==id);
+  saveDB(); renderCustomers(); renderMeasurements(); renderOrders(); toast('Deleted.');
+}
+
+function viewCustomer(id){
+  const c=DB.customers.find(c=>c.id===id); if(!c)return;
+  const m=c.measurements||{};
+  const orders=DB.orders.filter(o=>o.customerId===id);
+  document.getElementById('view-name').textContent=c.name+' — Profile';
+  const mFields=[['Chest',m.chest],['Waist',m.waist],['Hip',m.hip],['Shoulder',m.shoulder],['Sleeve',m.sleeve],['Neck',m.neck],['Shirt Length',m.shirtLen],['Kurta',m.kurta],['Sherwani',m.sherwani],['Shalwar',m.shalwar],['Pancha',m.pancha],['Inseam',m.inseam],['Outseam',m.outseam],['Thigh',m.thigh],['Knee',m.knee],['Ankle',m.ankle],['Trouser Waist',m.trwaist]].filter(f=>f[1]);
+  const measHtml=mFields.map(f=>`<div class="meas-item"><div class="meas-label">${f[0]}</div><div class="meas-val">${f[1]}<span class="meas-unit">"</span></div></div>`).join('');
+  const ordersHtml=orders.length?orders.map(o=>`<div class="detail-row"><span class="detail-key">${o.item} — ${o.fabric||'—'}</span><span>${getBadge(o.status)}</span></div>`).join(''):'<div style="color:var(--muted);font-size:12px;">No orders.</div>';
+  document.getElementById('view-body').innerHTML=`
+    <div class="detail-grid" style="margin-bottom:16px;">
+      <div class="detail-card"><div class="detail-card-title">Personal Info</div>
+        ${row('Phone',c.phone)}${row('City',c.city||'—')}${row('Father',c.father||'—')}${row('Address',c.address||'—')}${row('CNIC',c.cnic||'—')}${row('Added',c.createdAt?new Date(c.createdAt).toLocaleDateString('en-PK'):'—')}
+      </div>
+      <div class="detail-card"><div class="detail-card-title">Orders (${orders.length})</div>${ordersHtml}</div>
+    </div>
+    <div class="detail-card"><div class="detail-card-title">Body Measurements</div>
+      ${measHtml?`<div class="meas-grid" style="grid-template-columns:repeat(5,1fr)">${measHtml}</div>`:'<div style="color:var(--muted);font-size:12px;">No measurements.</div>'}
+      ${m.notes?`<div style="font-size:12px;color:var(--muted);margin-top:8px;">Notes: ${m.notes}</div>`:''}
+    </div>`;
+  openModal('modal-view');
+}
+
+function row(k,v){return `<div class="detail-row"><span class="detail-key">${k}</span><span class="detail-val">${v}</span></div>`;}
+
+function renderCustomers(filter){
+  if(filter!==undefined)custFilter=filter;
+  const tbody=document.getElementById('customers-table');
+  let list=DB.customers.filter(c=>!custFilter||c.name.toLowerCase().includes(custFilter.toLowerCase())||c.phone.includes(custFilter));
+  const total=list.length, pages=Math.ceil(total/PER);
+  if(custPage>pages)custPage=1;
+  const slice=list.slice((custPage-1)*PER, custPage*PER);
+  if(!slice.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-icon">◎</div>No customers.</div></td></tr>`;renderPagination('cust-pagination',pages,custPage,'custPage','renderCustomers');return;}
+  tbody.innerHTML=slice.map((c,i)=>{
+    const oCount=DB.orders.filter(o=>o.customerId===c.id).length;
+    const init=c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const sn=(custPage-1)*PER+i+1;
+    return `<tr><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">${sn}</td><td><div style="display:flex;align-items:center;"><span class="avatar">${init}</span>${c.name}</div></td><td style="font-family:'DM Mono',monospace;font-size:12px;">${c.phone}</td><td>${c.city||'—'}</td><td><span class="badge badge-gold">${oCount}</span></td><td style="display:flex;gap:5px;"><button class="btn btn-sm" onclick="viewCustomer('${c.id}')">View</button><button class="btn btn-sm btn-blue" onclick="openMeasEdit('${c.id}')">Meas</button><button class="btn btn-sm" onclick="editCustomer('${c.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteCustomer('${c.id}')">Del</button></td></tr>`;
+  }).join('');
+  renderPagination('cust-pagination',pages,custPage,'custPage','renderCustomers');
+}
+
+function filterCustomers(v){custPage=1;renderCustomers(v);}
+
+// ======== MEASUREMENTS ========
+function openMeasEdit(id){
+  const c=DB.customers.find(c=>c.id===id); if(!c)return;
+  editingMeasId=id;
+  document.getElementById('meas-edit-title').textContent='Edit Measurements — '+c.name;
+  const m=c.measurements||{};
+  const mf={'me-chest':'chest','me-waist':'waist','me-hip':'hip','me-shoulder':'shoulder','me-sleeve':'sleeve','me-neck':'neck','me-shirt-len':'shirtLen','me-kurta':'kurta','me-sherwani':'sherwani','me-shalwar':'shalwar','me-pancha':'pancha','me-inseam':'inseam','me-outseam':'outseam','me-thigh':'thigh','me-knee':'knee','me-ankle':'ankle','me-trwaist':'trwaist','me-notes':'notes'};
+  Object.entries(mf).forEach(([elId,key])=>{const el=document.getElementById(elId);if(el)el.value=m[key]||'';});
+  openModal('modal-meas-edit');
+}
+
+function saveMeasurements(){
+  const idx=DB.customers.findIndex(c=>c.id===editingMeasId); if(idx<0)return;
+  DB.customers[idx].measurements={
+    chest:document.getElementById('me-chest').value, waist:document.getElementById('me-waist').value,
+    hip:document.getElementById('me-hip').value, shoulder:document.getElementById('me-shoulder').value,
+    sleeve:document.getElementById('me-sleeve').value, neck:document.getElementById('me-neck').value,
+    shirtLen:document.getElementById('me-shirt-len').value, kurta:document.getElementById('me-kurta').value,
+    sherwani:document.getElementById('me-sherwani').value, shalwar:document.getElementById('me-shalwar').value,
+    pancha:document.getElementById('me-pancha').value, inseam:document.getElementById('me-inseam').value,
+    outseam:document.getElementById('me-outseam').value, thigh:document.getElementById('me-thigh').value,
+    knee:document.getElementById('me-knee').value, ankle:document.getElementById('me-ankle').value,
+    trwaist:document.getElementById('me-trwaist').value, notes:document.getElementById('me-notes').value
+  };
+  saveDB(); closeModal('modal-meas-edit'); renderMeasurements(); toast('Measurements saved!');
+}
+
+function renderMeasurements(filter){
+  if(filter!==undefined)measFilter=filter;
+  const tbody=document.getElementById('measurements-table');
+  let list=DB.customers.filter(c=>!measFilter||c.name.toLowerCase().includes(measFilter.toLowerCase()));
+  const total=list.length, pages=Math.ceil(total/PER);
+  if(measPage>pages)measPage=1;
+  const slice=list.slice((measPage-1)*PER,measPage*PER);
+  if(!slice.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="empty-icon">◎</div>No records.</div></td></tr>`;return;}
+  tbody.innerHTML=slice.map(c=>{
+    const m=c.measurements||{};
+    const init=c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<tr><td><div style="display:flex;align-items:center;"><span class="avatar">${init}</span>${c.name}</div></td><td>${m.chest?m.chest+'"':'—'}</td><td>${m.waist?m.waist+'"':'—'}</td><td>${m.shoulder?m.shoulder+'"':'—'}</td><td>${m.sleeve?m.sleeve+'"':'—'}</td><td>${m.neck?m.neck+'"':'—'}</td><td style="color:var(--gold2)">${m.shalwar?m.shalwar+'"':'—'}</td><td style="color:var(--gold2)">${m.pancha?m.pancha+'"':'—'}</td><td>${m.kurta?m.kurta+'"':'—'}</td><td><button class="btn btn-sm btn-blue" onclick="openMeasEdit('${c.id}')">✏ Edit</button><button class="btn btn-sm" onclick="viewCustomer('${c.id}')">View</button></td></tr>`;
+  }).join('');
+  renderPagination('meas-pagination',pages,measPage,'measPage','renderMeasurements');
+}
+
+function filterMeasurements(v){measPage=1;renderMeasurements(v);}
+
+// ======== ORDERS ========
+function populateOrderCustomers(){
+  const sel=document.getElementById('o-customer');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select Customer —</option>';
+  DB.customers.forEach(c=>{const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.name+' — '+c.phone;sel.appendChild(opt);});
+  sel.value=cur;
+}
+
+function openAddOrder(){
+  editingOrderId=null;
+  document.getElementById('order-modal-title').textContent='New Order';
+  ['o-fabric','o-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('o-qty').value=1;
+  document.getElementById('o-price').value='';
+  document.getElementById('o-advance').value='';
+  document.getElementById('o-due').value='';
+  document.getElementById('o-status').value='Pending';
+  document.getElementById('o-item').value='Shalwar Kameez';
+  document.getElementById('o-customer').value='';
+  populateOrderCustomers();
+  openModal('modal-order');
+}
+
+function saveOrder(){
+  const customerId=document.getElementById('o-customer').value;
+  if(!customerId){toast('Select a customer.');return;}
+  const order={
+    id:editingOrderId||uid(), customerId,
+    item:document.getElementById('o-item').value,
+    fabric:document.getElementById('o-fabric').value.trim(),
+    qty:document.getElementById('o-qty').value,
+    price:document.getElementById('o-price').value,
+    advance:document.getElementById('o-advance').value,
+    due:document.getElementById('o-due').value,
+    status:document.getElementById('o-status').value,
+    notes:document.getElementById('o-notes').value.trim(),
+    createdAt:editingOrderId?(DB.orders.find(o=>o.id===editingOrderId)||{}).createdAt:new Date().toISOString()
+  };
+  if(editingOrderId){const idx=DB.orders.findIndex(o=>o.id===editingOrderId);DB.orders[idx]=order;toast('Order updated.');}
+  else{DB.orders.push(order);toast('Order created.');}
+  saveDB(); closeModal('modal-order'); renderOrders();
+}
+
+function editOrder(id){
+  const o=DB.orders.find(o=>o.id===id); if(!o)return;
+  editingOrderId=id;
+  document.getElementById('order-modal-title').textContent='Edit Order';
+  populateOrderCustomers();
+  document.getElementById('o-customer').value=o.customerId;
+  document.getElementById('o-item').value=o.item;
+  document.getElementById('o-fabric').value=o.fabric||'';
+  document.getElementById('o-qty').value=o.qty||1;
+  document.getElementById('o-price').value=o.price||'';
+  document.getElementById('o-advance').value=o.advance||'';
+  document.getElementById('o-due').value=o.due||'';
+  document.getElementById('o-status').value=o.status||'Pending';
+  document.getElementById('o-notes').value=o.notes||'';
+  openModal('modal-order');
+}
+
+function deleteOrder(id){
+  if(!confirm('Delete this order?'))return;
+  DB.orders=DB.orders.filter(o=>o.id!==id);
+  saveDB(); renderOrders(); toast('Order deleted.');
+}
+
+function updateOrderStatus(id,status){
+  const o=DB.orders.find(o=>o.id===id);
+  if(o){o.status=status;saveDB();renderOrders();toast('Status updated.');}
+}
+
+function renderOrders(filter){
+  if(filter!==undefined)orderFilter=filter;
+  const tbody=document.getElementById('orders-table');
+  let list=DB.orders.filter(o=>{
+    if(!orderFilter)return true;
+    const c=DB.customers.find(c=>c.id===o.customerId);
+    return (c&&c.name.toLowerCase().includes(orderFilter.toLowerCase()))||o.item.toLowerCase().includes(orderFilter.toLowerCase());
+  }).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const total=list.length, pages=Math.ceil(total/PER);
+  if(orderPage>pages)orderPage=1;
+  const slice=list.slice((orderPage-1)*PER,orderPage*PER);
+  if(!slice.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="empty-icon">◐</div>No orders.</div></td></tr>`;renderPagination('orders-pagination',pages,orderPage,'orderPage','renderOrders');return;}
+  tbody.innerHTML=slice.map(o=>{
+    const c=DB.customers.find(c=>c.id===o.customerId);
+    const bal=o.price&&o.advance?(Number(o.price)-Number(o.advance)):null;
+    return `<tr><td>${c?c.name:'—'}</td><td>${o.item}</td><td style="font-size:12px;color:var(--muted);">${o.fabric||'—'}</td><td style="font-family:'DM Mono',monospace;font-size:12px;">${o.price?'Rs '+Number(o.price).toLocaleString():'—'}</td><td style="font-family:'DM Mono',monospace;font-size:11px;">${o.advance?'Rs '+Number(o.advance).toLocaleString():'—'}${bal!==null?`<br><span style="color:${bal>0?'var(--red)':'var(--green)'}">Bal: Rs ${Number(bal).toLocaleString()}</span>`:''}</td><td style="font-family:'DM Mono',monospace;font-size:11px;">${o.due||'—'}</td><td>${getBadge(o.status)}</td><td style="display:flex;gap:4px;flex-wrap:wrap;"><select onchange="updateOrderStatus('${o.id}',this.value)" style="padding:3px 6px;font-size:10px;width:auto;">${['Pending','In Progress','Ready','Delivered'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select><button class="btn btn-sm" onclick="editOrder('${o.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteOrder('${o.id}')">Del</button></td></tr>`;
+  }).join('');
+  renderPagination('orders-pagination',pages,orderPage,'orderPage','renderOrders');
+}
+
+function filterOrders(v){orderPage=1;renderOrders(v);}
+
+// ======== PAGINATION ========
+function renderPagination(elId,pages,current,pageVar,renderFn){
+  const el=document.getElementById(elId); if(!el)return;
+  if(pages<=1){el.innerHTML='';return;}
+  let html=`<span>Page ${current} of ${pages}</span>&nbsp;`;
+  html+=`<button class="page-btn" onclick="window.${pageVar}=Math.max(1,window.${pageVar}-1);${renderFn}()">‹</button>`;
+  const start=Math.max(1,current-2), end=Math.min(pages,start+4);
+  for(let p=start;p<=end;p++) html+=`<button class="page-btn ${p===current?'active':''}" onclick="window.${pageVar}=${p};${renderFn}()">${p}</button>`;
+  html+=`<button class="page-btn" onclick="window.${pageVar}=Math.min(${pages},window.${pageVar}+1);${renderFn}()">›</button>`;
+  el.innerHTML=html;
+}
+window.custPage=1; window.measPage=1; window.orderPage=1;
+
+// ======== DASHBOARD ========
+function updateDashboard(){
+  const tot=DB.customers.length, ord=DB.orders.length;
+  const pend=DB.orders.filter(o=>o.status==='Pending'||o.status==='In Progress').length;
+  const ready=DB.orders.filter(o=>o.status==='Ready'||o.status==='Delivered').length;
+  document.getElementById('d-cust').textContent=tot;
+  document.getElementById('d-orders').textContent=ord;
+  document.getElementById('d-pending').textContent=pend;
+  document.getElementById('d-ready').textContent=ready;
+
+  const recentC=document.getElementById('dash-customers');
+  const lastC=[...DB.customers].slice(-6).reverse();
+  recentC.innerHTML=lastC.map(c=>{
+    const cnt=DB.orders.filter(o=>o.customerId===c.id).length;
+    return `<tr><td>${c.name}</td><td style="font-family:'DM Mono',monospace;font-size:11px;">${c.phone}</td><td><span class="badge badge-gold">${cnt}</span></td></tr>`;
+  }).join('');
+
+  const recentO=document.getElementById('dash-orders');
+  const lastO=[...DB.orders].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6);
+  recentO.innerHTML=lastO.map(o=>{
+    const c=DB.customers.find(c=>c.id===o.customerId);
+    return `<tr><td>${c?c.name:'—'}</td><td>${o.item}</td><td>${getBadge(o.status)}</td></tr>`;
+  }).join('');
+}
+
+function updateSidebar(){
+  document.getElementById('sb-cust').textContent=DB.customers.length;
+  document.getElementById('sb-orders').textContent=DB.orders.filter(o=>o.status==='Pending'||o.status==='In Progress').length;
+  document.getElementById('sb-ready').textContent=DB.orders.filter(o=>o.status==='Ready').length;
+}
+
+function getBadge(s){const m={'Pending':'badge-gold','In Progress':'badge-blue','Ready':'badge-green','Delivered':'badge-red'};return `<span class="badge ${m[s]||'badge-gold'}">${s}</span>`;}
+
+function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2800);}
+
+// ======== INIT ========
+updateDashboard(); updateSidebar();
+</script>
+</body>
+</html>
